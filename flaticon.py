@@ -28,7 +28,6 @@ def page(x):
         title = urls.find('img', first=True).attrs['data-src'].split('/')[-1]
         if imgtag.endswith('.png'):
             img = imgtag
-            logging.info(img)
             
             with open(pdf + '/' + title, 'wb') as f:
                 res = s.get(img, stream=True)
@@ -39,4 +38,10 @@ query = input('Enter keyword here:')
 endpage = int(input('Enter endpage:'))
 for x in range(1, endpage):
     page(x)
+
+ 
+print('\n')
+print('Download completed')
+input()
+    
 
