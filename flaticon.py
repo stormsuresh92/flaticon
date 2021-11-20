@@ -1,8 +1,8 @@
 from requests_html import HTMLSession
 import os
-from tqdm import tqdm
 import time
 import logging
+from alive_progress import alive_bar
 
 s = HTMLSession()
 
@@ -22,17 +22,17 @@ def page(x):
     url = f'https://www.flaticon.com/search/{x}?word={query}&type=icon'
     r = s.get(url, headers=header)
     image = r.html.find('.icon--holder')
-    for urls in tqdm(image):
-        time.sleep(0.02)
-        imgtag = urls.find('img', first=True).attrs['data-src']
-        title = urls.find('img', first=True).attrs['data-src'].split('/')[-1]
-        if imgtag.endswith('.png'):
-            img = imgtag
-            
-            with open(pdf + '/' + title, 'wb') as f:
-                res = s.get(img, stream=True)
-                f.write(res.content)
-    return 
+    with alive_bar(46, title=f'Getting page:{x}', bar='classic2', spinner='classic') as bar:
+        for urls in image:
+            imgtag = urls.find('img', first=True).attrs['data-src']
+            title = urls.find('img', first=True).attrs['data-src'].split('/')[-1]
+            if imgtag.endswith('.png'):
+                img = imgtag
+                with open(pdf + '/' + title, 'wb') as f:
+                    res = s.get(img, stream=True)
+                    f.write(res.content)
+                    time.sleep(0.01)
+                    bar()
    
 query = input('Enter keyword here:')
 endpage = int(input('Enter endpage:'))
